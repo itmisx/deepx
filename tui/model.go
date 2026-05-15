@@ -386,9 +386,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.PasteMsg:
-		// 配置 modal 期间不消费,直接吞
+		// 配置 modal 期间,转发给 setupInput(允许粘贴 API key)
 		if m.showSetup {
-			return m, nil
+			var c tea.Cmd
+			m.setupInput, c = m.setupInput.Update(msg)
+			return m, c
 		}
 		// 空 paste 内容 = 终端有 paste 事件但 PTY 里没文本 → 大概率剪贴板只有图片,主动读 PNG。
 		// 非空 paste 内容 = 普通文本粘贴,放掉让 textinput 自己接(它有 PasteMsg 处理)。
